@@ -1,3 +1,21 @@
+const datetimepickerOptions = {
+    format: 'DD/MM/YYYY HH:mm:ss',
+    useCurrent: false,
+    showTodayButton: true,
+    toolbarPlacement: 'bottom',
+    sideBySide: true,
+    icons: {
+        time: "bi bi-clock",
+        date: "bi bi-calendar",
+        up: "bi bi-arrow-up",
+        down: "bi bi-arrow-down",
+        previous: "bi bi-chevron-left",
+        next: "bi bi-chevron-right",
+        today: "bi bi-clock",
+        clear: "bi bi-trash"
+    }
+};
+
 function init() {
     $("#mining_add_user_button").click(() => {
         $.ajax({
@@ -33,6 +51,7 @@ function init() {
             });
         })
     }, 500);
+    $('input.datetimepicker').datetimepicker(datetimepickerOptions);
     updateUsers();
     updateShares();
 }
@@ -68,6 +87,7 @@ function updateUsers() {
                     <td></td>\
                 </tr>`);
             $(`#mining_table_update_default_hash_rate-${user.id}`).click(() => updateUserDefaultHashRate(user.id));
+            $(`#mining_table_action_date-${user.id}`).datetimepicker(datetimepickerOptions);
             $(`#mining_table_add_start-${user.id}`).click(() => addMiningBlock(user.id, "Start"));
             $(`#mining_table_add_end-${user.id}`).click(() => addMiningBlock(user.id, "End"));
         });
@@ -85,7 +105,7 @@ function updateShares() {
                     <td>${share.end_time}</td>\
                     <td>${share.amount}</td>\
                     <td>\
-                        <button id="mining_share_table_calculate-${share.id}">Calculate share</button>\
+                        <button class="form-control btn btn-primary" id="mining_share_table_calculate-${share.id}">Calculate share</button>\
                     </td>\
                 </tr>`);
             $(`#mining_share_table_calculate-${share.id}`).click(() => calculateShare(share.id));
