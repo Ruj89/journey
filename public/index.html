@@ -65,6 +65,16 @@
           >
           <a
             class="nav-link"
+            id="menu-telegram-tab"
+            data-toggle="pill"
+            href="#menu-telegram"
+            role="tab"
+            aria-controls="menu-telegram"
+            aria-selected="false"
+            >Telegram parsing</a
+          >
+          <a
+            class="nav-link"
             id="menu-shares-tab"
             data-toggle="pill"
             href="#menu-shares"
@@ -91,6 +101,7 @@
                     <th>ID</th>
                     <th>Name</th>
                     <th>Default Hash Rate [MH/s]</th>
+                    <th>Telegram name</th>
                     <th>Action</th>
                   </tr>
                 </thead>
@@ -117,6 +128,14 @@
                   >
                 </div>
                 <div class="form-floating">
+                  <input
+                    class="form-control"
+                    type="text"
+                    id="mining_add_telegram_name"
+                  />
+                  <label for="mining_add_telegram_name">Telegram name</label>
+                </div>
+                <div class="form-floating">
                   <button
                     class="form-control btn btn-primary"
                     id="mining_add_user_button"
@@ -125,6 +144,28 @@
                   </button>
                 </div>
               </div>
+            </div>
+          </div>
+          <div
+            class="tab-pane fade"
+            id="menu-telegram"
+            role="tabpanel"
+            aria-labelledby="menu-telegram-tab"
+          >
+            <div class="card m-2 p-5">
+              <h3 class="card-title">Parse telegram messages</h3>
+              <label for="mining_parse_telegram_textarea">Messages text</label>
+              <textarea
+                class="form-control"
+                id="mining_parse_telegram_textarea"
+                rows="15"
+              ></textarea>
+              <button
+                class="form-control btn btn-primary"
+                id="mining_parse_telegram_button"
+              >
+                Parse and add actions
+              </button>
             </div>
           </div>
           <div

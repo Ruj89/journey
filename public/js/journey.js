@@ -37,6 +37,17 @@ function init() {
       contentType: 'application/json; charset=utf-8',
     });
   });
+  $('#mining_parse_telegram_button').click(() => {
+    $.ajax({
+      url: '/telegram',
+      type: 'POST',
+      data: JSON.stringify({
+        text: $('#mining_parse_telegram_textarea').val(),
+      }),
+      dataType: 'json',
+      contentType: 'application/json; charset=utf-8',
+    });
+  });
   setInterval(() => {
     $.get('/price', (data) => {
       $('#mining_share_calculate_table_body tr').each(function () {
@@ -61,6 +72,7 @@ function addUser() {
     data: JSON.stringify({
       name: $('#mining_add_name').val(),
       defaultHashRate: $('#mining_add_default_hash_rate').val(),
+      telegramName: $('#mining_add_telegram_name').val(),
     }),
     dataType: 'json',
     contentType: 'application/json; charset=utf-8',
@@ -82,6 +94,7 @@ function updateUsers() {
               <button class="form-control btn btn-primary" id="mining_table_update_default_hash_rate-${user.id}">Update value</button>\
             </div>\
           </td>\
+          <td>${user.telegramName}</td>\
           <td>\
             <div class="input-group">\
               <input class="form-control" type="text" id="mining_table_action_date-${user.id}" />\

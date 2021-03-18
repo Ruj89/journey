@@ -34,7 +34,8 @@ class Database {
                 CREATE TABLE mining_users ( \
                     id              INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, \
                     name            TEXT NOT NULL, \
-                    defaultHashRate REAL NOT NULL \
+                    defaultHashRate REAL NOT NULL, \
+                    telegramName    TEXT NOT NULL  \
                 )'
         );
         this.database.run(
@@ -88,7 +89,13 @@ class Database {
         if (!error)
           resolve(
             users.map(
-              (user) => new User(user.name, user.defaultHashRate, user.id)
+              (user) =>
+                new User(
+                  user.name,
+                  user.defaultHashRate,
+                  user.telegramName,
+                  user.id
+                )
             )
           );
         else reject(error);
@@ -214,6 +221,22 @@ class Database {
         [action.type, action.date.toISOString(), action.user],
         (error) => {
           if (!error) resolve();
+          else reject(error);
+        }
+      );
+    });
+  }
+  /**
+   * Check if an action already exists (data comparison)
+   * @returns the promise of the boolean
+   */
+  actionExists(action) {
+    return new Promise((resolve, reject) => {
+      this.database.all(
+        'SELECT id FROM mining_action WHERE type = ? AND date = ? AND user = ?',
+        [action.type, action.date, action.user],
+        (error, actions) => {
+          if (!error) resolve(actions.length > 0);
           else reject(error);
         }
       );

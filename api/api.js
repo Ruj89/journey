@@ -1,8 +1,10 @@
 const express = require('express');
+const moment = require('moment');
 
 const { Database } = require('../database/database');
 const { WSSController } = require('../client/wss');
 const { User, Share, Action } = require('../models/models');
+const database = require('../database/database');
 
 class APIController {
   /**
@@ -35,7 +37,11 @@ class APIController {
       async (request, response) => {
         try {
           await this.databaseController.createUser(
-            new User(request.body.name, request.body.defaultHashRate)
+            new User(
+              request.body.name,
+              request.body.defaultHashRate,
+              request.body.telegramName
+            )
           );
           response.sendStatus(200);
         } catch (_) {
@@ -183,6 +189,50 @@ class APIController {
         }
       }
     );
+
+    this.serverApplication.post('/telegram', async (request, response) => {
+      try {
+        const telegramStartKeywords = ['Attacco', 'Ripartito', 'Riattacco'];
+        const telegramEndKeywords = ['Stacco'];
+        let users = await this.databaseController.getUsers();
+        let telegramCaptionRegex = /([A-Za-z\s]+), \[(\d{2}\.\d{2}\.\d{2} \d{2}:\d{2})\]/g;
+        let lines = request.body.text.split('\n');
+        let action_type,
+          action_date,
+          action_user,
+          caption_found = false;
+        lines.forEach(async (line) => {
+          let regexResults = telegramCaptionRegex.exec(line);
+          if (regexResults) {
+            users.forEach((user) => {
+              if (user.telegramName == regexResults[1]) action_user = user.id;
+            });
+            action_date = moment(regexResults[2], 'DD.MM.YY HH:mm').toDate();
+            caption_found = true;
+          } else if (caption_found) {
+            if (telegramStartKeywords.indexOf(line) > -1) action_type = 'Start';
+            else if (telegramEndKeywords.indexOf(line) > -1)
+              action_type = 'End';
+            else caption_found = false;
+
+            if (caption_found) {
+              let action = new Action(action_type, action_date, action_user);
+              if (!(await this.databaseController.actionExists(action)))
+                this.databaseController.createAction(action);
+              caption_found = false;
+            } else {
+              if (line != '') console.log(`Cannot parse ${line}`);
+            }
+          } else {
+            if (line != '') console.log(`Cannot parse ${line}`);
+            caption_found = false;
+          }
+        });
+        response.sendStatus(200);
+      } catch (_) {
+        response.sendStatus(500);
+      }
+    });
 
     this.serverApplication.get('/price', (_, response) => {
       if (this.wssController.lastPrice)
