@@ -8,9 +8,17 @@
   },
   "author": "",
   "license": "ISC",
+  "prettier": {
+    "trailingComma": "es5",
+    "semi": true,
+    "singleQuote": true
+  },
   "dependencies": {
     "express": "^4.17.1",
     "sqlite3": "^5.0.2",
     "ws": "^7.4.3"
+  },
+  "devDependencies": {
+    "prettier": "2.2.1"
   }
 }

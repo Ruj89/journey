@@ -1,14 +1,19 @@
-function setCleanUp() {
-    process.stdin.resume();
+/**
+ * Catch the close event to cleanup the server
+ */
+function setCleanUp(callback) {
+  process.stdin.resume();
 
-    [`exit`, `SIGINT`, `SIGUSR1`, `SIGUSR2`, `uncaughtException`, `SIGTERM`].forEach((eventType) => {
-        process.on(eventType, cleanUpServer.bind(null, eventType));
-    });
-
-    function cleanUpServer() {
-        console.log("cleaning db");
-        database.close();
-    }
+  [
+    `exit`,
+    `SIGINT`,
+    `SIGUSR1`,
+    `SIGUSR2`,
+    `uncaughtException`,
+    `SIGTERM`,
+  ].forEach((eventType) => {
+    process.on(eventType, () => callback());
+  });
 }
 
 module.exports = { setCleanUp: setCleanUp };
