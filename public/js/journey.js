@@ -17,19 +17,7 @@ const datetimepickerOptions = {
 };
 
 function init() {
-  $('#mining_add_user_button').click(() => {
-    $.ajax({
-      url: '/api/mining/user',
-      type: 'POST',
-      data: JSON.stringify({
-        name: $('#mining_add_name').val(),
-        defaultHashRate: $('#mining_add_default_hash_rate').val(),
-      }),
-      dataType: 'json',
-      contentType: 'application/json; charset=utf-8',
-      success: updateUsers,
-    });
-  });
+  $('#mining_add_user_button').click(() => addUser());
   $('#mining_add_share_button').click(() => {
     $.ajax({
       url: '/api/mining/share',
@@ -60,36 +48,50 @@ function init() {
   updateShares();
 }
 
+function addUser() {
+  $.ajax({
+    url: '/api/mining/user',
+    type: 'POST',
+    data: JSON.stringify({
+      name: $('#mining_add_name').val(),
+      defaultHashRate: $('#mining_add_default_hash_rate').val(),
+    }),
+    dataType: 'json',
+    contentType: 'application/json; charset=utf-8',
+    success: updateUsers,
+  });
+}
 function updateUsers() {
   $.get('/api/mining/users', (users) => {
     $('#mining_table_body').html('');
     $('#mining_share_calculate_table_body').html('');
     users.forEach((user) => {
       $('#mining_table_body').append(`\
-                <tr>\
-                    <td>${user.id}</td>\
-                    <td>${user.name}</td>\
-                    <td>\
-                        <div class="input-group">\
-                            <input class="form-control" type="text" id="mining_table_default_hash_rate-${user.id}" value="${user.defaultHashRate}" />\
-                            <button class="form-control btn btn-primary" id="mining_table_update_default_hash_rate-${user.id}">Update value</button>\
-                        </div>\
-                    </td>\
-                    <td>\
-                        <div class="input-group">\
-                            <input class="form-control" type="text" id="mining_table_action_date-${user.id}" />\
-                            <button class="form-control btn btn-success" id="mining_table_add_start-${user.id}"><i class="bi bi-play-fill"></i>Start</button>\
-                            <button class="form-control btn btn-danger" id="mining_table_add_end-${user.id}"><i class="bi bi-pause-fill"></i>End</button>\
-                        </div>\
-                    </td>\
-                </tr>`);
+        <tr>\
+          <td>${user.id}</td>\
+          <td>${user.name}</td>\
+          <td>\
+            <div class="input-group">\
+              <input class="form-control" type="text" id="mining_table_default_hash_rate-${user.id}" value="${user.defaultHashRate}" />\
+              <button class="form-control btn btn-primary" id="mining_table_update_default_hash_rate-${user.id}">Update value</button>\
+            </div>\
+          </td>\
+          <td>\
+            <div class="input-group">\
+              <input class="form-control" type="text" id="mining_table_action_date-${user.id}" />\
+              <button class="form-control btn btn-success" id="mining_table_add_start-${user.id}"><i class="bi bi-play-fill"></i>Start</button>\
+              <button class="form-control btn btn-danger" id="mining_table_add_end-${user.id}"><i class="bi bi-pause-fill"></i>End</button>\
+              <button class="form-control btn btn-danger" id="mining_table_delete_user-${user.id}"><i class="bi bi-trash-fill"></i></button>\
+            </div>\
+          </td>\
+        </tr>`);
       $('#mining_share_calculate_table_body').append(`\
-                <tr id="mining_share_calculate_table_row-${user.id}">\
-                    <td>${user.name}</td>\
-                    <td></td>\
-                    <td></td>\
-                    <td></td>\
-                </tr>`);
+        <tr id="mining_share_calculate_table_row-${user.id}">\
+          <td>${user.name}</td>\
+          <td></td>\
+          <td></td>\
+          <td></td>\
+        </tr>`);
       $(`#mining_table_update_default_hash_rate-${user.id}`).click(() =>
         updateUserDefaultHashRate(user.id)
       );
@@ -102,7 +104,17 @@ function updateUsers() {
       $(`#mining_table_add_end-${user.id}`).click(() =>
         addMiningBlock(user.id, 'End')
       );
+      $(`#mining_table_delete_user-${user.id}`).click(() =>
+        deleteUser(user.id)
+      );
     });
+  });
+}
+function deleteUser(id) {
+  $.ajax({
+    url: `/api/mining/user/${id}`,
+    type: 'DELETE',
+    success: updateUsers,
   });
 }
 
@@ -111,15 +123,15 @@ function updateShares() {
     $('#mining_share_table_body').html('');
     shares.forEach((share) => {
       $('#mining_share_table_body').append(`\
-                <tr>\
-                    <td>${share.id}</td>\
-                    <td>${share.start_time}</td>\
-                    <td>${share.end_time}</td>\
-                    <td>${share.amount}</td>\
-                    <td>\
-                        <button class="form-control btn btn-primary" id="mining_share_table_calculate-${share.id}">Calculate share</button>\
-                    </td>\
-                </tr>`);
+        <tr>\
+          <td>${share.id}</td>\
+          <td>${share.start_time}</td>\
+          <td>${share.end_time}</td>\
+          <td>${share.amount}</td>\
+          <td>\
+            <button class="form-control btn btn-primary" id="mining_share_table_calculate-${share.id}">Calculate share</button>\
+          </td>\
+        </tr>`);
       $(`#mining_share_table_calculate-${share.id}`).click(() =>
         calculateShare(share.id)
       );

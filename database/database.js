@@ -114,6 +114,23 @@ class Database {
       );
     });
   }
+  /**
+   * Delete an user
+   * @param {*} id Identifier of the user to be deleted
+   * @returns the promise of the operation
+   */
+  deleteUser(id) {
+    return new Promise((resolve, reject) => {
+      this.database.run(
+        `DELETE FROM mining_users WHERE id = ?`,
+        [id],
+        (error) => {
+          if (!error) resolve();
+          else reject(error);
+        }
+      );
+    });
+  }
 
   /**
    * Create e new share

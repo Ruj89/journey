@@ -69,6 +69,17 @@ class APIController {
         }
       }
     );
+    this.serverApplication.delete(
+      '/api/mining/user/:userID',
+      async (request, response) => {
+        try {
+          await this.databaseController.deleteUser(request.params.userID);
+          response.sendStatus(200);
+        } catch (_) {
+          response.sendStatus(500);
+        }
+      }
+    );
 
     this.serverApplication.get('/api/mining/shares', async (_, response) => {
       try {
