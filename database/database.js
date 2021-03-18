@@ -88,7 +88,7 @@ class Database {
         if (!error)
           resolve(
             users.map(
-              (user) => new User(user.id, user.name, user.defaultHashRate)
+              (user) => new User(user.name, user.defaultHashRate, user.id)
             )
           );
         else reject(error);
@@ -165,10 +165,10 @@ class Database {
             shares.map(
               (share) =>
                 new Share(
-                  share.id,
                   share.amount,
                   new Date(share.start_time),
-                  new Date(share.end_time)
+                  new Date(share.end_time),
+                  share.id
                 )
             )
           );
@@ -190,10 +190,10 @@ class Database {
           if (!error)
             resolve(
               new Share(
-                id,
                 share.amount,
                 new Date(share.start_time),
-                new Date(share.end_time)
+                new Date(share.end_time),
+                id
               )
             );
           else reject(error);
@@ -234,10 +234,10 @@ class Database {
               actions.map(
                 (action) =>
                   new Action(
-                    action.id,
                     action.type,
                     new Date(action.date),
-                    action.user
+                    action.user,
+                    action.id
                   )
               )
             );

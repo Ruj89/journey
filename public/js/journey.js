@@ -24,8 +24,14 @@ function init() {
       type: 'POST',
       data: JSON.stringify({
         amount: $('#mining_share_amount').val(),
-        start_time: $('#mining_share_start_time').val(),
-        end_time: $('#mining_share_end_time').val(),
+        start_time: moment(
+          $('#mining_share_start_time').val(),
+          datetimepickerOptions.format
+        ).toISOString(),
+        end_time: moment(
+          $('#mining_share_end_time').val(),
+          datetimepickerOptions.format
+        ).toISOString(),
       }),
       dataType: 'json',
       contentType: 'application/json; charset=utf-8',
@@ -142,13 +148,16 @@ function updateShares() {
 function addMiningBlock(userID, type) {
   var date = new Date().toISOString();
   if ($(`#mining_table_action_date-${userID}`).val() != '')
-    date = $(`#mining_table_action_date-${userID}`).val();
+    date = moment(
+      $(`#mining_table_action_date-${userID}`).val(),
+      datetimepickerOptions.format
+    );
   $.ajax({
     url: '/api/mining/block',
     type: 'POST',
     data: JSON.stringify({
       type: type,
-      date: date,
+      date: date.toISOString(),
       user: userID,
     }),
     dataType: 'json',

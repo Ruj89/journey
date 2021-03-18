@@ -35,10 +35,7 @@ class APIController {
       async (request, response) => {
         try {
           await this.databaseController.createUser(
-            new User({
-              name: request.body.name,
-              defaultHashRate: request.body.defaultHashRate,
-            })
+            new User(request.body.name, request.body.defaultHashRate)
           );
           response.sendStatus(200);
         } catch (_) {
@@ -94,11 +91,11 @@ class APIController {
       async (request, response) => {
         try {
           await this.databaseController.createShare(
-            new Share({
-              amount: request.body.amount,
-              start_time: Date(request.body.start_time),
-              end_time: Date(request.body.end_time),
-            })
+            new Share(
+              request.body.amount,
+              new Date(request.body.start_time),
+              new Date(request.body.end_time)
+            )
           );
           response.sendStatus(200);
         } catch (_) {
@@ -175,14 +172,10 @@ class APIController {
       async (request, response) => {
         try {
           let date = request.body.date
-            ? request.body.date
-            : new Date().toISOString();
-          await this.databaseController.addAction(
-            new Action({
-              type: request.body.type,
-              date: date,
-              user: request.body.user,
-            })
+            ? new Date(request.body.date)
+            : new Date();
+          await this.databaseController.createAction(
+            new Action(request.body.type, date, request.body.user)
           );
           response.sendStatus(200);
         } catch (_) {
