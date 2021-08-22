@@ -2,7 +2,7 @@ const sqlite3 = require('sqlite3').verbose();
 const fs = require('fs');
 const path = require('path');
 
-const { User, Share, Action } = require('../models/models');
+const { User, Share, Action, Coin } = require('../models/models');
 
 class Database {
   /**
@@ -31,6 +31,14 @@ class Database {
       this.database.serialize(() => {
         this.database.run(
           '\
+                CREATE TABLE coins ( \
+                    id              INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, \
+                    name            TEXT NOT NULL, \
+                    ticker          TEXT NOT NULL \
+                )'
+        );
+        this.database.run(
+          '\
                 CREATE TABLE mining_users ( \
                     id              INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, \
                     name            TEXT NOT NULL, \
@@ -56,6 +64,15 @@ class Database {
                     amount      REAL NOT NULL, \
                     start_time  TIMESTAMP NOT NULL, \
                     end_time    TIMESTAMP NOT NULL \
+                )'
+        );
+        this.database.run(
+          '\
+                CREATE TABLE "stacking_amounts" ( \
+                    "id"	      INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, \
+                    "value"	    REAL NOT NULL, \
+                    "coin"	    INTEGER NOT NULL, \
+                    "time"	    TIMESTAMP NOT NULL \
                 )'
         );
       });
@@ -267,6 +284,52 @@ class Database {
           else reject(error);
         }
       );
+    });
+  }
+
+  /**
+   * Create e new coin
+   * @param {Coin} coin Coin to be created
+   * @returns the promise of the operation
+   */
+  createCoin(coin) {
+    return new Promise((resolve, reject) => {
+      this.database.run(
+        'INSERT INTO coins VALUES (NULL, ?, ?)',
+        [coin.name, coin.ticker],
+        (error) => {
+          if (!error) resolve();
+          else reject(error);
+        }
+      );
+    });
+  }
+  /**
+   * Get all the coins
+   * @returns the coins list promise
+   */
+  getCoins() {
+    return new Promise((resolve, reject) => {
+      this.database.all('SELECT * FROM coins', (error, coins) => {
+        if (!error)
+          resolve(
+            coins.map((coin) => new Coin(coin.name, coin.ticker, coin.id))
+          );
+        else reject(error);
+      });
+    });
+  }
+  /**
+   * Delete a coin
+   * @param {*} id Identifier of the coin to be deleted
+   * @returns the promise of the operation
+   */
+  deleteCoin(id) {
+    return new Promise((resolve, reject) => {
+      this.database.run(`DELETE FROM coins WHERE id = ?`, [id], (error) => {
+        if (!error) resolve();
+        else reject(error);
+      });
     });
   }
 }

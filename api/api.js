@@ -3,7 +3,7 @@ const moment = require('moment');
 
 const { Database } = require('../database/database');
 const { WSSController } = require('../client/wss');
-const { User, Share, Action } = require('../models/models');
+const { User, Share, Action, Coin } = require('../models/models');
 const database = require('../database/database');
 
 class APIController {
@@ -239,6 +239,32 @@ class APIController {
         response.send(this.wssController.lastPrice);
       else response.sendStatus(200);
     });
+
+    this.serverApplication.get('/api/coins', async (_, response) => {
+      let responseObject = await this.databaseController.getCoins();
+      response.send(responseObject);
+    });
+    this.serverApplication.post('/api/coins', async (request, response) => {
+      try {
+        await this.databaseController.createCoin(
+          new Coin(request.body.name, request.body.ticker)
+        );
+        response.sendStatus(200);
+      } catch (_) {
+        response.sendStatus(500);
+      }
+    });
+    this.serverApplication.delete(
+      '/api/coins/:coinID',
+      async (request, response) => {
+        try {
+          await this.databaseController.deleteCoin(request.params.coinID);
+          response.sendStatus(200);
+        } catch (_) {
+          response.sendStatus(500);
+        }
+      }
+    );
   }
 }
 

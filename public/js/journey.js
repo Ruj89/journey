@@ -48,6 +48,18 @@ function init() {
       contentType: 'application/json; charset=utf-8',
     });
   });
+  $('#hw_wallet_add_coin_button').click(() => {
+    $.ajax({
+      url: '/api/coins',
+      type: 'POST',
+      data: JSON.stringify({
+        name: $('#hw_wallet_add_name').val(),
+        ticker: $('#hw_wallet_add_ticker').val(),
+      }),
+      dataType: 'json',
+      contentType: 'application/json; charset=utf-8',
+    });
+  });
   setInterval(() => {
     $.get('/price', (data) => {
       $('#mining_share_calculate_table_body tr').each(function () {
@@ -63,6 +75,7 @@ function init() {
   $('input.datetimepicker').datetimepicker(datetimepickerOptions);
   updateUsers();
   updateShares();
+  updateHWWalletCoins();
 }
 
 function addUser() {
@@ -208,5 +221,47 @@ function calculateShare(shareID) {
     $('#mining_share_calculate_table_foot td:eq(1)').html(
       parseFloat(resultObject.totalMilliseconds / 1000 / 60 / 60).toFixed(2)
     );
+  });
+}
+
+function updateHWWalletCoins() {
+  $.get('/api/coins', (coins) => {
+    $('#hw_wallet_calculate_table_body').html('');
+    coins.forEach((coin) => {
+      $('#hw_wallet_calculate_table_body').append(`\
+        <tr>\
+          <td>${coin.name}</td>\
+          <td>0 &euro;</td>\
+          <td>0</td>\
+          <td>0 &euro;</td>\
+          <td>\
+            <div class="input-group">\
+              <input class="form-control" type="text" id="hw_wallet_table_action_amount-${coin.id}" />\
+              <input class="form-control" type="text" id="hw_wallet_table_action_date-${coin.id}" />\
+              <button class="form-control btn btn-success" id="hw_wallet_table_add-${coin.id}"><i class="bi bi-plus-circle-fill"></i>Insert</button>\
+              <button class="form-control btn btn-primary" id="hw_wallet_table_replace-${coin.id}"><i class="bi bi-scissors"></i>Replace</button>\
+              <button class="form-control btn btn-danger" id="hw_wallet_table_delete-${coin.id}"><i class="bi bi-trash-fill"></i>Remove coin</button>\
+            </div>\
+          </td>\
+        </tr>`);
+      $(`#hw_wallet_table_action_date-${coin.id}`).datetimepicker(
+        datetimepickerOptions
+      );
+      $(`#hw_wallet_table_add-${coin.id}`).click(() =>
+        addHWWalletAmount(coin.id)
+      );
+      $(`#hw_wallet_table_replace-${coin.id}`).click(() =>
+        replaceHWWalletAmount(coin.id)
+      );
+      $(`#hw_wallet_table_delete-${coin.id}`).click(() => deleteCoin(coin.id));
+    });
+  });
+}
+
+function deleteCoin(id) {
+  $.ajax({
+    url: `/api/coins/${id}`,
+    type: 'DELETE',
+    success: updateHWWalletCoins,
   });
 }
