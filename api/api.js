@@ -3,8 +3,13 @@ const moment = require('moment');
 
 const { Database } = require('../database/database');
 const { WSSController } = require('../client/wss');
-const { User, Share, Action, Coin } = require('../models/models');
-const database = require('../database/database');
+const {
+  User,
+  Share,
+  Action,
+  Coin,
+  StackingAmount,
+} = require('../models/models');
 
 class APIController {
   /**
@@ -27,8 +32,6 @@ class APIController {
     this.serverApplication.use('/', express.static(`${__dirname}/../public`));
     this.serverApplication.use(express.json());
     this.serverApplication.listen(this.port, () => {
-      this.databaseController.initialize();
-      this.wssController.connect();
       console.log(`Journey server listening at http://localhost:${this.port}`);
     });
 
@@ -235,14 +238,19 @@ class APIController {
     });
 
     this.serverApplication.get('/price', (_, response) => {
-      if (this.wssController.lastPrice)
-        response.send(this.wssController.lastPrice);
+      if (this.wssController.lastPrices[this.wssController.miningIndex])
+        response.send(
+          this.wssController.lastPrices[this.wssController.miningIndex]
+        );
       else response.sendStatus(200);
     });
 
     this.serverApplication.get('/api/coins', async (_, response) => {
       let responseObject = await this.databaseController.getCoins();
       response.send(responseObject);
+    });
+    this.serverApplication.get('/api/coins/values', async (_, response) => {
+      response.send(this.wssController.lastPrices);
     });
     this.serverApplication.post('/api/coins', async (request, response) => {
       try {
@@ -265,6 +273,36 @@ class APIController {
         }
       }
     );
+
+    this.serverApplication.post('/api/hwwallet', async (request, response) => {
+      try {
+        await this.databaseController.createStackingAmount(
+          new StackingAmount(
+            request.body.value,
+            request.body.coin,
+            new Date(request.body.time)
+          )
+        );
+        response.sendStatus(200);
+      } catch (_) {
+        response.sendStatus(500);
+      }
+    });
+
+    this.serverApplication.get('/api/hwwallet/amounts', async (_, response) => {
+      try {
+        let stackingAmounts = await this.databaseController.getStackingAmounts();
+        let calculatedAmounts = [];
+        stackingAmounts.forEach((stackingAmount) => {
+          if (calculatedAmounts[stackingAmount.coin])
+            calculatedAmounts[stackingAmount.coin] += stackingAmount.value;
+          else calculatedAmounts[stackingAmount.coin] = stackingAmount.value;
+        });
+        response.send(calculatedAmounts);
+      } catch (_) {
+        response.sendStatus(500);
+      }
+    });
   }
 }
 

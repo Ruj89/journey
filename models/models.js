@@ -3,4 +3,5 @@ module.exports = {
   Share: require('./share').default,
   Action: require('./action').default,
   Coin: require('./coin').default,
+  StackingAmount: require('./stackingamount').default,
 };

@@ -62,7 +62,7 @@ function init() {
   });
   setInterval(() => {
     $.get('/price', (data) => {
-      $('#mining_share_calculate_table_body tr').each(function () {
+      $('#mining_share_calculate_table_body > tr').each(function () {
         if ($(this).children('td:eq(2)').html() != '')
           $(this)
             .children('td:eq(3)')
@@ -70,6 +70,24 @@ function init() {
               parseFloat($(this).children('td:eq(2)').html() * data).toFixed(2)
             );
       });
+    });
+    $.get('/api/coins/values', (data) => {
+      let totalAmount = 0;
+      $('#hw_wallet_calculate_table_body > tr').each(function (index) {
+        if (data[index]) {
+          let amount = parseFloat(
+            $(this).children('td:eq(2)').html() * data[index]
+          );
+          totalAmount += amount;
+          $(this)
+            .children('td:eq(1)')
+            .html(data[index] + '&euro;');
+          $(this)
+            .children('td:eq(3)')
+            .html(amount.toFixed(2) + '&euro;');
+        }
+      });
+      $('#hw_wallet_calculate_total').html(totalAmount.toFixed(2) + '&euro;');
     });
   }, 500);
   $('input.datetimepicker').datetimepicker(datetimepickerOptions);
@@ -232,7 +250,7 @@ function updateHWWalletCoins() {
         <tr>\
           <td>${coin.name}</td>\
           <td>0 &euro;</td>\
-          <td>0</td>\
+          <td id="hw_wallet_table_amount-${coin.id}">0</td>\
           <td>0 &euro;</td>\
           <td>\
             <div class="input-group">\
@@ -255,6 +273,7 @@ function updateHWWalletCoins() {
       );
       $(`#hw_wallet_table_delete-${coin.id}`).click(() => deleteCoin(coin.id));
     });
+    updateHWWalletAmounts();
   });
 }
 
@@ -262,6 +281,58 @@ function deleteCoin(id) {
   $.ajax({
     url: `/api/coins/${id}`,
     type: 'DELETE',
+    success: updateHWWalletCoins,
+  });
+}
+
+function updateHWWalletAmounts() {
+  $.get('/api/hwwallet/amounts', (amounts) => {
+    amounts.forEach((amount, index) => {
+      if (amount) $(`#hw_wallet_table_amount-${index}`).html(amount.toFixed(8));
+    });
+  });
+}
+
+function addHWWalletAmount(coinID) {
+  var date = new Date().toISOString();
+  if ($(`#hw_wallet_table_action_date-${coinID}`).val() != '')
+    date = moment(
+      $(`#hw_wallet_table_action_date-${coinID}`).val(),
+      datetimepickerOptions.format
+    );
+  $.ajax({
+    url: '/api/hwwallet',
+    type: 'POST',
+    data: JSON.stringify({
+      value: $(`#hw_wallet_table_action_amount-${coinID}`).val(),
+      time: date.toISOString(),
+      coin: coinID,
+    }),
+    dataType: 'json',
+    contentType: 'application/json; charset=utf-8',
+    success: updateHWWalletCoins,
+  });
+}
+
+function replaceHWWalletAmount(coinID) {
+  var date = new Date().toISOString();
+  if ($(`#hw_wallet_table_action_date-${coinID}`).val() != '')
+    date = moment(
+      $(`#hw_wallet_table_action_date-${coinID}`).val(),
+      datetimepickerOptions.format
+    );
+  $.ajax({
+    url: '/api/hwwallet',
+    type: 'POST',
+    data: JSON.stringify({
+      value:
+        $(`#hw_wallet_table_action_amount-${coinID}`).val() -
+        parseFloat($(`#hw_wallet_table_amount-${coinID}`).html()),
+      time: date.toISOString(),
+      coin: coinID,
+    }),
+    dataType: 'json',
+    contentType: 'application/json; charset=utf-8',
     success: updateHWWalletCoins,
   });
 }

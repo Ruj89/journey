@@ -2,7 +2,13 @@ const sqlite3 = require('sqlite3').verbose();
 const fs = require('fs');
 const path = require('path');
 
-const { User, Share, Action, Coin } = require('../models/models');
+const {
+  User,
+  Share,
+  Action,
+  Coin,
+  StackingAmount,
+} = require('../models/models');
 
 class Database {
   /**
@@ -80,7 +86,7 @@ class Database {
   }
 
   /**
-   * Create e new user
+   * Create a new user
    * @param {User} user User to be created
    * @returns the promise of the operation
    */
@@ -330,6 +336,50 @@ class Database {
         if (!error) resolve();
         else reject(error);
       });
+    });
+  }
+
+  /**
+   * Create a new stacking amount
+   * @param {StackingAmount} stackingAmount Stacking amount to be created
+   * @returns the promise of the operation
+   */
+  createStackingAmount(stackingAmount) {
+    return new Promise((resolve, reject) => {
+      this.database.run(
+        'INSERT INTO stacking_amounts VALUES (NULL, ?, ?, ?)',
+        [stackingAmount.value, stackingAmount.coin, stackingAmount.time],
+        (error) => {
+          if (!error) resolve();
+          else reject(error);
+        }
+      );
+    });
+  }
+  /**
+   * Get all the stacking amounts
+   * @returns the stacking amounts list promise
+   */
+  getStackingAmounts() {
+    return new Promise((resolve, reject) => {
+      this.database.all(
+        'SELECT * FROM stacking_amounts',
+        (error, stackingAmounts) => {
+          if (!error)
+            resolve(
+              stackingAmounts.map(
+                (stackingAmount) =>
+                  new StackingAmount(
+                    stackingAmount.value,
+                    stackingAmount.coin,
+                    stackingAmount.time,
+                    stackingAmount.id
+                  )
+              )
+            );
+          else reject(error);
+        }
+      );
     });
   }
 }
