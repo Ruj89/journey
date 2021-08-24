@@ -27,6 +27,15 @@ class APIController {
    * Set the API interfaces
    */
   initialize() {
+    this.initUsers();
+    this.initShares();
+    this.initTelegram();
+    this.initCoins();
+    this.initHWWallet();
+  }
+
+  /** Setup the users API interface */
+  initUsers() {
     this.serverApplication.post(
       '/api/mining/user',
       async (request, response) => {
@@ -78,7 +87,10 @@ class APIController {
         }
       }
     );
+  }
 
+  /** Setup the mining shares API interface */
+  initShares() {
     this.serverApplication.get('/api/mining/shares', async (_, response) => {
       try {
         let shares = await this.databaseController.getShares();
@@ -184,7 +196,10 @@ class APIController {
         }
       }
     );
+  }
 
+  /** Setup the telegran parsing API interface */
+  initTelegram() {
     this.serverApplication.post('/telegram', async (request, response) => {
       try {
         const telegramStartKeywords = ['Attacco', 'Ripartito', 'Riattacco'];
@@ -229,7 +244,11 @@ class APIController {
         response.sendStatus(500);
       }
     });
+  }
 
+  /** Setup the coins API interface */
+  initCoins() {
+    // TODO: Replace with a single coin get
     this.serverApplication.get('/price', (_, response) => {
       if (this.wssController.lastPrices[this.wssController.miningIndex])
         response.send(
@@ -237,7 +256,6 @@ class APIController {
         );
       else response.sendStatus(200);
     });
-
     this.serverApplication.get('/api/coins', async (_, response) => {
       let responseObject = await this.databaseController.getCoins();
       response.send(responseObject);
@@ -266,7 +284,10 @@ class APIController {
         }
       }
     );
+  }
 
+  /** Setup the hardware wallet API interface */
+  initHWWallet() {
     this.serverApplication.post('/api/hwwallet', async (request, response) => {
       try {
         await this.databaseController.createStackingAmount(
