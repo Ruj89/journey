@@ -15,10 +15,46 @@
         <!-- t{ "template": true, "name":"menu" } -->
         <div class="col-9">
             <div class="tab-content" id="menu-tabContent">
-                <!-- t{ "template": true, "name":"tabs/users/main" } -->
-                <!-- t{ "template": true, "name":"tabs/telegram" } -->
-                <!-- t{ "template": true, "name":"tabs/shares/main" } -->
-                <!-- t{ "template": true, "name":"tabs/hw-wallet/main" } -->
+                <!-- t{
+                    "template": true,
+                    "name":"components/page-container",
+                    "nestedTemplates":{"page": "tabs/users/main"},
+                    "variables": {
+                        "active":"show active",
+                        "pageName": "users",
+                        "title": "Users"
+                    }
+                } -->
+                <!-- t{
+                    "template": true,
+                    "name":"components/page-container",
+                    "nestedTemplates":{"page": "tabs/telegram"},
+                    "variables": {
+                        "active":"",
+                        "pageName": "telegram",
+                        "title": "Parse Telegram messages"
+                    }
+                } -->
+                <!-- t{
+                    "template": true,
+                    "name":"components/page-container",
+                    "nestedTemplates":{"page": "tabs/shares/main"},
+                    "variables": {
+                        "active":"",
+                        "pageName": "shares",
+                        "title": "Mining shares"
+                    }
+                } -->
+                <!-- t{
+                    "template": true,
+                    "name":"components/page-container",
+                    "nestedTemplates":{"page": "tabs/hw-wallet/main"},
+                    "variables": {
+                        "active":"",
+                        "pageName": "hw-wallet",
+                        "title": "Hardware wallet value"
+                    }
+                } -->
             </div>
         </div>
     </div>

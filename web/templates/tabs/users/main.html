@@ -1,37 +1,44 @@
-<div class="tab-pane fade show active" id="menu-users" role="tabpanel" aria-labelledby="menu-users-tab">
-    <div class="card m-2 p-5">
-        <h3 class="card-title">Users</h3>
-        <!-- t{
-            "template": true,
-            "name": "components/table",
-            "nestedTemplates":{
-                "head": "tabs/shares/head"
-            },
-            "variables": {
-                "headId":"",
-                "bodyId":"mining_table_body",
-                "footId":""
-            }
-        } -->
-        <div>
-            <h4>Add user</h4>
-            <div class="form-floating">
-                <input class="form-control" type="text" id="mining_add_name" />
-                <label for="mining_add_name">Name</label>
-            </div>
-            <div class="form-floating">
-                <input class="form-control" type="text" id="mining_add_default_hash_rate" />
-                <label for="mining_add_default_hash_rate">Default Hash Rate [MH/s]</label>
-            </div>
-            <div class="form-floating">
-                <input class="form-control" type="text" id="mining_add_telegram_name" />
-                <label for="mining_add_telegram_name">Telegram name</label>
-            </div>
-            <div class="form-floating">
-                <button class="form-control btn btn-primary" id="mining_add_user_button">
-                    Add user
-                </button>
-            </div>
-        </div>
+<!-- t{
+    "template": true,
+    "name": "components/table",
+    "nestedTemplates":{
+        "head": "tabs/shares/head"
+    },
+    "variables": {
+        "headId":"",
+        "bodyId":"mining_table_body",
+        "footId":""
+    }
+} -->
+<div>
+    <h4>Add user</h4>
+    <!-- t{ 
+        "template": true, 
+        "name": "components/form-text-input",
+        "variables": {
+            "id": "mining_add_name",
+            "label": "Name"
+        }
+    } -->
+    <!-- t{ 
+        "template": true, 
+        "name": "components/form-text-input",
+        "variables": {
+            "id": "mining_add_default_hash_rate",
+            "label": "Default Hash Rate [MH/s]"
+        }
+    } -->
+    <!-- t{ 
+        "template": true, 
+        "name": "components/form-text-input",
+        "variables": {
+            "id": "mining_add_telegram_name",
+            "label": "Telegram name"
+        }
+    } -->
+    <div class="form-floating">
+        <button class="form-control btn btn-primary" id="mining_add_user_button">
+            Add user
+        </button>
     </div>
 </div>
