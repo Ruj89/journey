@@ -3,7 +3,9 @@ const fs = require('fs/promises');
 const path = require('path');
 
 class WebController {
+  /** Path of the templates */
   TEMPLATE_PATH = `${__dirname}/templates/`;
+  /** Path of the static files */
   STATIC_PATH = `${__dirname}/static/`;
 
   /**
@@ -28,6 +30,13 @@ class WebController {
     });
   }
 
+  /**
+   * Replace using an async function
+   * @param {string} str The string to be parsed and replaced
+   * @param {RegExp} regex The regex to apply
+   * @param {*} asyncFn The function to be applied
+   * @returns the elaborated string
+   */
   async replaceAsync(str, regex, asyncFn) {
     const promises = [];
     str.replace(regex, (match, ...args) => {
@@ -38,6 +47,21 @@ class WebController {
     return str.replace(regex, () => data.shift());
   }
 
+  /**
+   * Parse and format a page using JSON templates. The syntax is EXACLTY <!-- t{JSON} -->, where {JSON} is:
+   * {
+   *    "template": true/false, // A template is placed
+   *    "variable": true/false, // A variable is placed
+   *    "name": "templateOrVariableName", // Path of the template or name of the variable, should be undefined if is a nested template
+   *    "nestedTemplateName": "templateName", // Name of the template passed as argument, if undefined the empty marker remains as is
+   *    "nestedTemplates": {"nestedTemplateName":"path"}, // A map of names - paths containing the nested templates to be passed to the template
+   *    "variable": {"variableName":"value"}, // A map of names - variables containing the variables to be passed to the template
+   * }
+   * @param {string} pageName Name of the page to be parsed
+   * @param {*} nestedTemplates A map of names - files containing the nested templates to be applied as parameters
+   * @param {*} variables A map of names - variables containing the variables to be replaced
+   * @returns the formatted page
+   */
   async formatPage(pageName, nestedTemplates, variables) {
     try {
       let templateBuffer = await fs.readFile(
