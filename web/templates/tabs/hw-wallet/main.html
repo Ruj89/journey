@@ -1,0 +1,34 @@
+<div class="tab-pane fade" id="menu-hw-wallet" role="tabpanel" aria-labelledby="menu-hw-wallet-tab">
+    <div class="card m-2 p-5">
+        <h3 class="card-title">Hardware Wallet value</h3>
+        <!-- t{
+            "template": true,
+            "name": "components/table",
+            "nestedTemplates":{
+                "head": "tabs/hw-wallet/head",
+                "foot": "tabs/hw-wallet/foot"
+            },
+            "variables": {
+                "headId":"",
+                "bodyId":"hw_wallet_calculate_table_body",
+                "footId":"hw_wallet_calculate_table_foot"
+            }
+        } -->
+        <div>
+            <h4>Add coin</h4>
+            <div class="form-floating">
+                <input class="form-control" type="text" id="hw_wallet_add_name" />
+                <label for="hw_wallet_add_name">Name</label>
+            </div>
+            <div class="form-floating">
+                <input class="form-control" type="text" id="hw_wallet_add_ticker" />
+                <label for="hw_wallet_add_ticker">Ticker</label>
+            </div>
+            <div class="form-floating">
+                <button class="form-control btn btn-primary" id="hw_wallet_add_coin_button">
+                    Add coin
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,4 +1,3 @@
-const express = require('express');
 const moment = require('moment');
 
 const { Database } = require('../database/database');
@@ -14,27 +13,20 @@ const {
 class APIController {
   /**
    * Setup the API server controller
-   * @param {number} port Port of the server
+   * @param {serverApplication} serverApplication Express instance
    * @param {Database} databaseController Database controller object
    * @param {WSSController} wssController WebSocket controller client
    */
-  constructor(port, databaseController, wssController) {
-    this.serverApplication = express();
-    this.port = port;
+  constructor(serverApplication, databaseController, wssController) {
+    this.serverApplication = serverApplication;
     this.databaseController = databaseController;
     this.wssController = wssController;
   }
 
   /**
-   * Initialize the server and set the API interfaces
+   * Set the API interfaces
    */
   initialize() {
-    this.serverApplication.use('/', express.static(`${__dirname}/../public`));
-    this.serverApplication.use(express.json());
-    this.serverApplication.listen(this.port, () => {
-      console.log(`Journey server listening at http://localhost:${this.port}`);
-    });
-
     this.serverApplication.post(
       '/api/mining/user',
       async (request, response) => {
@@ -198,7 +190,8 @@ class APIController {
         const telegramStartKeywords = ['Attacco', 'Ripartito', 'Riattacco'];
         const telegramEndKeywords = ['Stacco'];
         let users = await this.databaseController.getUsers();
-        let telegramCaptionRegex = /([A-Za-z\s]+), \[(\d{2}\.\d{2}\.\d{2} \d{2}:\d{2})\]/g;
+        let telegramCaptionRegex =
+          /([A-Za-z\s]+), \[(\d{2}\.\d{2}\.\d{2} \d{2}:\d{2})\]/g;
         let lines = request.body.text.split('\n');
         let action_type,
           action_date,
@@ -291,7 +284,8 @@ class APIController {
 
     this.serverApplication.get('/api/hwwallet/amounts', async (_, response) => {
       try {
-        let stackingAmounts = await this.databaseController.getStackingAmounts();
+        let stackingAmounts =
+          await this.databaseController.getStackingAmounts();
         let calculatedAmounts = [];
         stackingAmounts.forEach((stackingAmount) => {
           if (calculatedAmounts[stackingAmount.coin])

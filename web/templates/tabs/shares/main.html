@@ -1,0 +1,56 @@
+<div class="tab-pane fade" id="menu-shares" role="tabpanel" aria-labelledby="menu-shares-tab">
+    <div class="card m-2 p-5">
+        <h3 class="card-title">Add share</h3>
+        <div>
+            <div class="form-floating">
+                <input class="form-control datetimepicker" type="text" id="mining_share_start_time" />
+                <label for="mining_share_start_time">Start time</label>
+            </div>
+            <div class="form-floating">
+                <input class="form-control datetimepicker" type="text" id="mining_share_end_time" />
+                <label for="mining_share_end_time">End time</label>
+            </div>
+            <div class="form-floating">
+                <input class="form-control" type="text" id="mining_share_amount" />
+                <label for="mining_share_amount">Mining amount</label>
+            </div>
+            <button class="form-control btn btn-danger" id="mining_add_share_button">
+                Close period
+            </button>
+        </div>
+    </div>
+    <div class="card m-2 p-5">
+        <h3 class="card-title">Calculate share</h3>
+        <div>
+            <!-- t{
+                "template": true,
+                "name": "components/table",
+                "nestedTemplates":{
+                    "head": "tabs/shares/share-head"
+                },
+                "variables": {
+                    "headId":"",
+                    "bodyId":"mining_share_table_body",
+                    "footId":""
+                }
+            } -->
+            <p>
+                Share n.
+                <span id="mining_share_calculate_id_label"></span>
+            </p>
+            <!-- t{
+                "template": true,
+                "name": "components/table",
+                "nestedTemplates":{
+                    "head": "tabs/shares/calculate-head",
+                    "foot": "tabs/shares/calculate-foot"
+                },
+                "variables": {
+                    "headId":"",
+                    "bodyId":"mining_share_calculate_table_body",
+                    "footId":"mining_share_calculate_table_foot"
+                }
+            } -->
+        </div>
+    </div>
+</div>
