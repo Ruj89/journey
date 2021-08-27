@@ -25,7 +25,7 @@ class WebController {
       '/js',
       express.static(path.join(this.STATIC_PATH, 'js'))
     );
-    this.serverApplication.get('/index.html', async (_, response) => {
+    this.serverApplication.get('/', async (_, response) => {
       response.send(await this.formatPage('index'));
     });
   }
