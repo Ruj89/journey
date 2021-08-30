@@ -2,13 +2,13 @@
     "template": true,
     "name": "components/table",
     "nestedTemplates":{
-        "head": "pages/hw-wallet/head",
-        "foot": "pages/hw-wallet/foot"
+        "head": "pages/wallet/head",
+        "foot": "pages/wallet/foot"
     },
     "variables": {
         "headId":"",
-        "bodyId":"hw_wallet_calculate_table_body",
-        "footId":"hw_wallet_calculate_table_foot"
+        "bodyId":"wallet_calculate_table_body",
+        "footId":"wallet_calculate_table_foot"
     }
 } -->
 <div class="mt-5">
@@ -17,7 +17,7 @@
         "template": true, 
         "name": "components/form-text-input",
         "variables": {
-            "id": "hw_wallet_add_name",
+            "id": "wallet_add_name",
             "label": "Name"
         }
     } -->
@@ -25,12 +25,12 @@
         "template": true, 
         "name": "components/form-text-input",
         "variables": {
-            "id": "hw_wallet_add_ticker",
+            "id": "wallet_add_ticker",
             "label": "Ticker"
         }
     } -->
     <div class="form-floating">
-        <button class="form-control btn btn-primary" id="hw_wallet_add_coin_button">
+        <button class="form-control btn btn-primary" id="wallet_add_coin_button">
             Add coin
         </button>
     </div>

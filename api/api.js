@@ -31,7 +31,7 @@ class APIController {
     this.initShares();
     this.initTelegram();
     this.initCoins();
-    this.initHWWallet();
+    this.initWallet();
   }
 
   /** Setup the users API interface */
@@ -284,9 +284,9 @@ class APIController {
     );
   }
 
-  /** Setup the hardware wallet API interface */
-  initHWWallet() {
-    this.serverApplication.post('/api/hwwallet', async (request, response) => {
+  /** Setup the wallet API interface */
+  initWallet() {
+    this.serverApplication.post('/api/wallet', async (request, response) => {
       try {
         await this.databaseController.createStackingAmount(
           new StackingAmount(
@@ -301,7 +301,7 @@ class APIController {
       }
     });
 
-    this.serverApplication.get('/api/hwwallet/amounts', async (_, response) => {
+    this.serverApplication.get('/api/wallet/amounts', async (_, response) => {
       try {
         let stackingAmounts =
           await this.databaseController.getStackingAmounts();

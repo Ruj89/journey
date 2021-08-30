@@ -7,7 +7,7 @@
     <script type="text/javascript" src="js/users-controller.js"></script>
     <script type="text/javascript" src="js/shares-controller.js"></script>
     <script type="text/javascript" src="js/telegram-controller.js"></script>
-    <script type="text/javascript" src="js/hwwallet-controller.js"></script>
+    <script type="text/javascript" src="js/wallet-controller.js"></script>
 </head>
 
 <body>
@@ -48,11 +48,11 @@
                 <!-- t{
                     "template": true,
                     "name":"components/page-container",
-                    "nestedTemplates":{"page": "pages/hw-wallet/main"},
+                    "nestedTemplates":{"page": "pages/wallet/main"},
                     "variables": {
                         "active":"",
-                        "pageName": "hw-wallet",
-                        "title": "Hardware wallet value"
+                        "pageName": "wallet",
+                        "title": "Wallet value"
                     }
                 } -->
             </div>
@@ -62,7 +62,7 @@
         new UsersController();
         new SharesController();
         new TelegramController();
-        new HWWalletController();
+        new WalletController();
         $('input.datetimepicker').datetimepicker(datetimepickerOptions);
     </script>
 </body>
