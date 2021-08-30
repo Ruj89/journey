@@ -250,10 +250,8 @@ class APIController {
   initCoins() {
     // TODO: Replace with a single coin get
     this.serverApplication.get('/price', (_, response) => {
-      if (this.wssController.lastPrices[this.wssController.miningIndex])
-        response.send(
-          this.wssController.lastPrices[this.wssController.miningIndex]
-        );
+      let value = this.wssController.getValueByTicker('ETH');
+      if (value > 0) response.send(value);
       else response.sendStatus(200);
     });
     this.serverApplication.get('/api/coins', async (_, response) => {
@@ -261,7 +259,7 @@ class APIController {
       response.send(responseObject);
     });
     this.serverApplication.get('/api/coins/values', async (_, response) => {
-      response.send(this.wssController.lastPrices);
+      response.send(this.wssController.getValueArray());
     });
     this.serverApplication.post('/api/coins', async (request, response) => {
       try {

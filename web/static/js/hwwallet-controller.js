@@ -15,19 +15,20 @@ class HWWalletController {
     setInterval(() => {
       $.get('/api/coins/values', (data) => {
         let totalAmount = 0;
-        $('#hw_wallet_calculate_table_body > tr').each(function (index) {
-          if (data[index]) {
-            let amount = parseFloat(
-              $(this).children('td:eq(2)').html() * data[index]
-            );
-            totalAmount += amount;
-            $(this)
-              .children('td:eq(1)')
-              .html(data[index] + '&euro;');
-            $(this)
-              .children('td:eq(3)')
-              .html(amount.toFixed(2) + '&euro;');
-          }
+        data.forEach((value, index) => {
+          if (value === null || value === undefined) return;
+          let floatValue = parseFloat(value);
+          let amount =
+            parseFloat(
+              $(`#hw_wallet_table_row-${index}`).children('td:eq(2)').html()
+            ) * floatValue;
+          totalAmount += amount;
+          $(`#hw_wallet_table_row-${index}`)
+            .children('td:eq(1)')
+            .html(floatValue.toFixed(2) + '&euro;');
+          $(`#hw_wallet_table_row-${index}`)
+            .children('td:eq(3)')
+            .html(amount.toFixed(2) + '&euro;');
         });
         $('#hw_wallet_calculate_total').html(totalAmount.toFixed(2) + '&euro;');
       });
@@ -40,7 +41,7 @@ class HWWalletController {
       $('#hw_wallet_calculate_table_body').html('');
       coins.forEach((coin) => {
         $('#hw_wallet_calculate_table_body').append(`\
-          <tr>\
+          <tr id="hw_wallet_table_row-${coin.id}">\
             <td>${coin.name}</td>\
             <td>0 &euro;</td>\
             <td id="hw_wallet_table_amount-${coin.id}">0</td>\

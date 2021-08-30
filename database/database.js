@@ -37,10 +37,12 @@ class Database {
       this.database.serialize(() => {
         this.database.run(
           '\
-                CREATE TABLE coins ( \
-                    id              INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, \
-                    name            TEXT NOT NULL, \
-                    ticker          TEXT NOT NULL \
+                CREATE TABLE "coins" ( \
+                    "id"	INTEGER NOT NULL, \
+                    "name"	TEXT NOT NULL, \
+                    "ticker"	TEXT NOT NULL, \
+                    "vs"	TEXT DEFAULT NULL, \
+                    PRIMARY KEY("id" AUTOINCREMENT) \
                 )'
         );
         this.database.run(
@@ -301,7 +303,7 @@ class Database {
   createCoin(coin) {
     return new Promise((resolve, reject) => {
       this.database.run(
-        'INSERT INTO coins VALUES (NULL, ?, ?)',
+        'INSERT INTO coins VALUES (NULL, ?, ?, NULL)',
         [coin.name, coin.ticker],
         (error) => {
           if (!error) resolve();
@@ -319,7 +321,9 @@ class Database {
       this.database.all('SELECT * FROM coins', (error, coins) => {
         if (!error)
           resolve(
-            coins.map((coin) => new Coin(coin.name, coin.ticker, coin.id))
+            coins.map(
+              (coin) => new Coin(coin.name, coin.ticker, coin.vs, coin.id)
+            )
           );
         else reject(error);
       });
