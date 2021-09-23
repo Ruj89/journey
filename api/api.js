@@ -311,6 +311,14 @@ class APIController {
             calculatedAmounts[stackingAmount.coin] += stackingAmount.value;
           else calculatedAmounts[stackingAmount.coin] = stackingAmount.value;
         });
+        stackingAmounts.forEach((stackingAmount) => {
+          if (
+            calculatedAmounts[stackingAmount.coin] &&
+            calculatedAmounts[stackingAmount.coin] < 0
+          )
+            calculatedAmounts[stackingAmount.coin] = 0;
+        });
+
         response.send(calculatedAmounts);
       } catch (_) {
         response.sendStatus(500);

@@ -12,6 +12,10 @@ class WalletController {
         contentType: 'application/json; charset=utf-8',
       });
     });
+    $('#wallet_calculate_table_show_zero_account').change(function () {
+      if (this.checked) $('.zero_amount_account').show();
+      else $('.zero_amount_account').hide();
+    });
     setInterval(() => {
       $.get('/api/coins/values', (data) => {
         let totalAmount = 0;
@@ -76,7 +80,17 @@ class WalletController {
   updateWalletAmounts() {
     $.get('/api/wallet/amounts', (amounts) => {
       amounts.forEach((amount, index) => {
-        if (amount) $(`#wallet_table_amount-${index}`).html(amount.toFixed(8));
+        if (amount) {
+          $(`#wallet_table_row-${index}`)
+            .removeClass('zero_amount_account')
+            .show();
+          $(`#wallet_table_amount-${index}`).html(amount.toFixed(8));
+        } else {
+          $(`#wallet_table_row-${index}`).addClass('zero_amount_account');
+          if ($('#wallet_calculate_table_show_zero_account').prop('checked'))
+            $(`#wallet_table_row-${index}`).show();
+          else $(`#wallet_table_row-${index}`).hide();
+        }
       });
     });
   }
@@ -92,7 +106,9 @@ class WalletController {
       url: '/api/wallet',
       type: 'POST',
       data: JSON.stringify({
-        value: $(`#wallet_table_action_amount-${coinID}`).val(),
+        value: $(`#wallet_table_action_amount-${coinID}`)
+          .val()
+          .replace(',', '.'),
         time: date.toISOString(),
         coin: coinID,
       }),
@@ -114,7 +130,7 @@ class WalletController {
       type: 'POST',
       data: JSON.stringify({
         value:
-          $(`#wallet_table_action_amount-${coinID}`).val() -
+          $(`#wallet_table_action_amount-${coinID}`).val().replace(',', '.') -
           parseFloat($(`#wallet_table_amount-${coinID}`).html()),
         time: date.toISOString(),
         coin: coinID,
