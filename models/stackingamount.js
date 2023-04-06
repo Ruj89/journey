@@ -1,4 +1,4 @@
-module.exports.default = class StackingAmount {
+export default class StackingAmount {
   /**
    * Generate a new action
    * @param {number} value Value of the stacking
@@ -12,4 +12,4 @@ module.exports.default = class StackingAmount {
     this.coin = coin;
     this.time = time;
   }
-};
+}

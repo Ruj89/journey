@@ -1,19 +1,14 @@
 /**
  * Catch the close event to cleanup the server
  */
-function setCleanUp(callback) {
+export function setCleanUp(callback) {
   process.stdin.resume();
 
-  [
-    `exit`,
-    `SIGINT`,
-    `SIGUSR1`,
-    `SIGUSR2`,
-    `uncaughtException`,
-    `SIGTERM`,
-  ].forEach((eventType) => {
-    process.on(eventType, () => callback());
+  [`exit`, `SIGINT`, `SIGUSR1`, `SIGUSR2`, `SIGTERM`].forEach((eventType) => {
+    process.on(eventType, (e) => callback());
+    process.on(`uncaughtException`, (e) => {
+      console.error(e);
+      callback();
+    });
   });
 }
-
-module.exports = { setCleanUp: setCleanUp };

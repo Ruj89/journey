@@ -1,7 +1,7 @@
-module.exports = {
-  User: require('./user').default,
-  Share: require('./share').default,
-  Action: require('./action').default,
-  Coin: require('./coin').default,
-  StackingAmount: require('./stackingamount').default,
-};
+import Action from './action.js';
+import Coin from './coin.js';
+import Share from './share.js';
+import StackingAmount from './stackingamount.js';
+import User from './user.js';
+
+export { User, Share, Action, Coin, StackingAmount };

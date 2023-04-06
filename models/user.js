@@ -1,4 +1,4 @@
-module.exports.default = class User {
+export default class User {
   /**
    * Generate a new user
    * @param {string} name User name
@@ -12,4 +12,4 @@ module.exports.default = class User {
     this.defaultHashRate = defaultHashRate;
     this.telegramName = telegramName;
   }
-};
+}

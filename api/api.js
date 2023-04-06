@@ -1,16 +1,10 @@
-const moment = require('moment');
+import * as moment from 'moment';
 
-const { Database } = require('../database/database');
-const { WSSController } = require('../client/wss');
-const {
-  User,
-  Share,
-  Action,
-  Coin,
-  StackingAmount,
-} = require('../models/models');
+import { WSSController } from '../client/wss.js';
+import { Database } from '../database/database.js';
+import { Action, Coin, Share, StackingAmount, User } from '../models/models.js';
 
-class APIController {
+export class APIController {
   /**
    * Setup the API server controller
    * @param {serverApplication} serverApplication Express instance
@@ -326,8 +320,3 @@ class APIController {
     });
   }
 }
-
-/**
- * Module exports
- */
-module.exports = { APIController: APIController };

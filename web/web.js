@@ -1,31 +1,41 @@
-const express = require('express');
-const fs = require('fs/promises');
-const path = require('path');
+import express from 'express';
+import * as fs from 'fs/promises';
+import * as path from 'path';
 
-class WebController {
+export class WebController {
+  /** Express instance */
+  #serverApplication
   /** Path of the templates */
-  TEMPLATE_PATH = `${__dirname}/templates/`;
+  #templatePath = './templates/';
   /** Path of the static files */
-  STATIC_PATH = `${__dirname}/static/`;
+  #staticPath = './static/';
 
   /**
    * Setup the Web server controller
-   * @param {serverApplication} serverApplication Express instance
+   * @param {Express} serverApplication Express instance
+   * @param {string} templatePath Path of the templates
+   * @param {string} staticPath Path of the static files
    * @param {number} port Port of the server
    */
-  constructor(serverApplication) {
-    this.serverApplication = serverApplication;
+  constructor(
+    serverApplication,
+    templatePath = './web/templates/',
+    staticPath = './web/static/'
+  ) {
+    this.#serverApplication = serverApplication;
+    this.#templatePath = templatePath;
+    this.#staticPath = staticPath;
   }
 
   /**
    * Setup the Web server pages and static objects
    */
   initialize() {
-    this.serverApplication.use(
+    this.#serverApplication.use(
       '/js',
-      express.static(path.join(this.STATIC_PATH, 'js'))
+      express.static(path.join(this.#staticPath, 'js'))
     );
-    this.serverApplication.get('/', async (_, response) => {
+    this.#serverApplication.get('/', async (_, response) => {
       response.send(await this.formatPage('index'));
     });
   }
@@ -48,7 +58,7 @@ class WebController {
   }
 
   /**
-   * Parse and format a page using JSON templates. The syntax is EXACLTY <!-- t{JSON} -->, where {JSON} is:
+   * Parse and format a page using JSON templates. The syntax is EXACTLY <!-- t{JSON} -->, where {JSON} is:
    * {
    *    "template": true/false, // A template is placed
    *    "variable": true/false, // A variable is placed
@@ -65,7 +75,7 @@ class WebController {
   async formatPage(pageName, nestedTemplates, variables) {
     try {
       let templateBuffer = await fs.readFile(
-        path.join(this.TEMPLATE_PATH, `${pageName}.html`)
+        path.join(this.#templatePath, `${pageName}.html`)
       );
       let templateCode = templateBuffer.toLocaleString();
       let templateContent = await this.replaceAsync(
@@ -106,8 +116,3 @@ class WebController {
     }
   }
 }
-
-/**
- * Module exports
- */
-module.exports = { WebController: WebController };

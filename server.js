@@ -1,9 +1,9 @@
-const express = require('express');
-const { WSSController } = require('./client/wss');
-const { APIController } = require('./api/api');
-const { Database } = require('./database/database');
-const utility = require('./utility/process');
-const { WebController } = require('./web/web');
+import express from 'express';
+import { APIController } from './api/api.js';
+import { WSSController } from './client/wss.js';
+import { Database } from './database/database.js';
+import { setCleanUp } from './utility/process.js';
+import { WebController } from './web/web.js';
 
 var port = 8080;
 var serverApplication = express();
@@ -15,9 +15,10 @@ serverApplication.listen(port, () => {
 var database;
 var wssController;
 var apiController;
+var webController;
 
 async function main() {
-  database = new Database(`${__dirname}/work/db`);
+  database = new Database('work/db');
   database.initialize();
   wssController = new WSSController(database);
   await wssController.connect();
@@ -27,9 +28,11 @@ async function main() {
   webController.initialize();
 }
 
-utility.setCleanUp(() => {
+function cleanUp() {
   console.log('Cleaning database');
-  database.database.close();
-});
+  if (database) database.dispose();
+}
+
+setCleanUp(cleanUp);
 
 main();

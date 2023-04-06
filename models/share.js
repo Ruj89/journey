@@ -1,4 +1,4 @@
-module.exports.default = class Share {
+export default class Share {
   /**
    * Generate a new share
    * @param {number} amount Amount of minet cryptocurrency
@@ -12,4 +12,4 @@ module.exports.default = class Share {
     this.start_time = start_time;
     this.end_time = end_time;
   }
-};
+}

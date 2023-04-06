@@ -1,7 +1,7 @@
-const WebSocket = require('ws');
-const { Database } = require('../database/database');
+import WebSocket from 'ws';
+import { Database } from '../database/database.js';
 
-class WSSController {
+export class WSSController {
   tickers = {};
 
   /**
@@ -87,8 +87,3 @@ class WSSController {
     return valueArray;
   }
 }
-
-/**
- * Module exports
- */
-module.exports = { WSSController: WSSController };

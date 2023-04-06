@@ -1,89 +1,63 @@
-const sqlite3 = require('sqlite3').verbose();
-const fs = require('fs');
-const path = require('path');
+import * as fs from 'fs';
+import * as path from 'path';
+import sqlite3 from 'sqlite3';
+import { Action, Coin, Share, StackingAmount, User } from '../models/models.js';
+import CoinTable from './coin_table.js';
+import MiningActionTable from './mining_action_table.js';
+import MiningShareTable from './mining_share_table.js';
+import MiningUserTable from './mining_user_table.js';
+import StackingAmountTable from './stacking_amount_table.js';
 
-const {
-  User,
-  Share,
-  Action,
-  Coin,
-  StackingAmount,
-} = require('../models/models');
+export class Database {
+  #coins;
+  #miningUsers;
+  #miningActions;
+  #miningShares;
+  #stackingAmounts;
+  #database = null;
+  #databaseFilePath;
 
-class Database {
   /**
    * Setup the database parameters
    * @param {string} databaseFilePath Path to the database file
    */
   constructor(databaseFilePath) {
-    this.databaseFilePath = databaseFilePath;
-    this.database = null;
+    this.#databaseFilePath = databaseFilePath;
+  }
+
+  dispose() {
+    if (this.#database) {
+      this.#database.close();
+      this.#database = null;
+    }
   }
 
   /**
    * Create the database if not exists and open a connection to it
    */
   initialize() {
-    let databaseFileExists = fs.existsSync(this.databaseFilePath);
-    let databaseContainingFolder = path.dirname(this.databaseFilePath);
+    let databaseFileExists = fs.existsSync(this.#databaseFilePath);
+    let databaseContainingFolder = path.dirname(this.#databaseFilePath);
     if (!databaseFileExists && !fs.existsSync(databaseContainingFolder))
       fs.mkdirSync(databaseContainingFolder);
-    this.database = new sqlite3.Database(this.databaseFilePath, (err) => {
+    this.#database = new sqlite3.Database(this.#databaseFilePath, (err) => {
       if (err) console.error(err.message);
     });
 
     if (!databaseFileExists) {
-      this.database.get('PRAGMA foreign_keys = ON');
-      this.database.serialize(() => {
-        this.database.run(
-          '\
-                CREATE TABLE "coins" ( \
-                    "id"	INTEGER NOT NULL, \
-                    "name"	TEXT NOT NULL, \
-                    "ticker"	TEXT NOT NULL, \
-                    "vs"	TEXT DEFAULT NULL, \
-                    PRIMARY KEY("id" AUTOINCREMENT) \
-                )'
-        );
-        this.database.run(
-          '\
-                CREATE TABLE mining_users ( \
-                    id              INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, \
-                    name            TEXT NOT NULL, \
-                    defaultHashRate REAL NOT NULL, \
-                    telegramName    TEXT NOT NULL  \
-                )'
-        );
-        this.database.run(
-          "\
-                CREATE TABLE mining_action ( \
-                    id    INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, \
-                    type  TEXT CHECK( type IN ('Start', 'End') ) NOT NULL, \
-                    date  TIMESTAMP NOT NULL, \
-                    user	INTEGER NOT NULL, \
-                    \
-                    FOREIGN KEY(user) REFERENCES mining_users(id) \
-                )"
-        );
-        this.database.run(
-          '\
-                CREATE TABLE mining_share ( \
-                    id          INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, \
-                    amount      REAL NOT NULL, \
-                    start_time  TIMESTAMP NOT NULL, \
-                    end_time    TIMESTAMP NOT NULL \
-                )'
-        );
-        this.database.run(
-          '\
-                CREATE TABLE "stacking_amounts" ( \
-                    "id"	      INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, \
-                    "value"	    REAL NOT NULL, \
-                    "coin"	    INTEGER NOT NULL, \
-                    "time"	    TIMESTAMP NOT NULL \
-                )'
-        );
-      });
+      try {
+        this.#database.get('PRAGMA foreign_keys = ON');
+        this.#database.serialize(() => {
+          this.#coins = new CoinTable(this.#database);
+          this.#miningUsers = new MiningUserTable(this.#database);
+          this.#miningActions = new MiningActionTable(this.#database);
+          this.#miningShares = new MiningShareTable(this.#database);
+          this.#stackingAmounts = new StackingAmountTable(this.#database);
+        });
+      } catch (e) {
+        fs.unlinkSync(this.#databaseFilePath);
+        throw e;
+      }
     }
   }
 
@@ -93,39 +67,14 @@ class Database {
    * @returns the promise of the operation
    */
   createUser(user) {
-    return new Promise((resolve, reject) => {
-      this.database.run(
-        'INSERT INTO mining_users VALUES (NULL, ?, ?)',
-        [user.name, user.defaultHashRate],
-        (error) => {
-          if (!error) resolve();
-          else reject(error);
-        }
-      );
-    });
+    return this.#miningUsers.create(user);
   }
   /**
    * Get all the users
    * @returns the users list promise
    */
   getUsers() {
-    return new Promise((resolve, reject) => {
-      this.database.all('SELECT * FROM mining_users', (error, users) => {
-        if (!error)
-          resolve(
-            users.map(
-              (user) =>
-                new User(
-                  user.name,
-                  user.defaultHashRate,
-                  user.telegramName,
-                  user.id
-                )
-            )
-          );
-        else reject(error);
-      });
-    });
+    return this.#miningUsers.getAll();
   }
   /**
    * Update an user field
@@ -136,7 +85,7 @@ class Database {
    */
   updateUser(id, field, data) {
     return new Promise((resolve, reject) => {
-      this.database.run(
+      this.#database.run(
         `UPDATE mining_users SET ${field} = ? WHERE id = ?`,
         [data, id],
         (error) => {
@@ -153,7 +102,7 @@ class Database {
    */
   deleteUser(id) {
     return new Promise((resolve, reject) => {
-      this.database.run(
+      this.#database.run(
         `DELETE FROM mining_users WHERE id = ?`,
         [id],
         (error) => {
@@ -171,7 +120,7 @@ class Database {
    */
   createShare(share) {
     return new Promise((resolve, reject) => {
-      this.database.run(
+      this.#database.run(
         'INSERT INTO mining_share VALUES (NULL, ?, ?, ?)',
         [
           share.amount,
@@ -191,7 +140,7 @@ class Database {
    */
   getShares() {
     return new Promise((resolve, reject) => {
-      this.database.all('SELECT * FROM mining_share', (error, shares) => {
+      this.#database.all('SELECT * FROM mining_share', (error, shares) => {
         if (!error)
           resolve(
             shares.map(
@@ -215,7 +164,7 @@ class Database {
    */
   getShare(id) {
     return new Promise((resolve, reject) => {
-      this.database.get(
+      this.#database.get(
         'SELECT amount, start_time, end_time FROM mining_share WHERE id = ?',
         [id],
         (error, share) => {
@@ -241,7 +190,7 @@ class Database {
    */
   createAction(action) {
     return new Promise((resolve, reject) => {
-      this.database.run(
+      this.#database.run(
         'INSERT INTO mining_action VALUES (NULL, ?, ?, ?)',
         [action.type, action.date.toISOString(), action.user],
         (error) => {
@@ -257,7 +206,7 @@ class Database {
    */
   actionExists(action) {
     return new Promise((resolve, reject) => {
-      this.database.all(
+      this.#database.all(
         'SELECT id FROM mining_action WHERE type = ? AND date = ? AND user = ?',
         [action.type, action.date, action.user],
         (error, actions) => {
@@ -273,7 +222,7 @@ class Database {
    */
   getActionsBetweenTimes(start_time, end_time) {
     return new Promise((resolve, reject) => {
-      this.database.all(
+      this.#database.all(
         'SELECT id, type, date, user FROM mining_action WHERE date > ? AND date < ? ORDER BY date',
         [start_time.toISOString(), end_time.toISOString()],
         (error, actions) => {
@@ -302,7 +251,7 @@ class Database {
    */
   createCoin(coin) {
     return new Promise((resolve, reject) => {
-      this.database.run(
+      this.#database.run(
         'INSERT INTO coins VALUES (NULL, ?, ?, NULL)',
         [coin.name, coin.ticker],
         (error) => {
@@ -318,7 +267,7 @@ class Database {
    */
   getCoins() {
     return new Promise((resolve, reject) => {
-      this.database.all('SELECT * FROM coins', (error, coins) => {
+      this.#database.all('SELECT * FROM coins', (error, coins) => {
         if (!error)
           resolve(
             coins.map(
@@ -336,7 +285,7 @@ class Database {
    */
   deleteCoin(id) {
     return new Promise((resolve, reject) => {
-      this.database.run(`DELETE FROM coins WHERE id = ?`, [id], (error) => {
+      this.#database.run(`DELETE FROM coins WHERE id = ?`, [id], (error) => {
         if (!error) resolve();
         else reject(error);
       });
@@ -350,7 +299,7 @@ class Database {
    */
   createStackingAmount(stackingAmount) {
     return new Promise((resolve, reject) => {
-      this.database.run(
+      this.#database.run(
         'INSERT INTO stacking_amounts VALUES (NULL, ?, ?, ?)',
         [stackingAmount.value, stackingAmount.coin, stackingAmount.time],
         (error) => {
@@ -366,7 +315,7 @@ class Database {
    */
   getStackingAmounts() {
     return new Promise((resolve, reject) => {
-      this.database.all(
+      this.#database.all(
         'SELECT * FROM stacking_amounts',
         (error, stackingAmounts) => {
           if (!error)
@@ -387,8 +336,3 @@ class Database {
     });
   }
 }
-
-/**
- * Module exports
- */
-module.exports = { Database: Database };

@@ -1,4 +1,4 @@
-module.exports.default = class Coin {
+export default class Coin {
   /**
    * Generate a new coin
    * @param {string} name Coin friendly name
@@ -12,4 +12,4 @@ module.exports.default = class Coin {
     this.ticker = ticker;
     this.vs = vs;
   }
-};
+}

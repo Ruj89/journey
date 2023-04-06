@@ -1,4 +1,4 @@
-module.exports.default = class Action {
+export default class Action {
   /**
    * Generate a new action
    * @param {string} type Action type [Start, End]
@@ -12,4 +12,4 @@ module.exports.default = class Action {
     this.date = date;
     this.user = user;
   }
-};
+}
